@@ -5,7 +5,6 @@ import os
 import string
 import random
 
-#connect to the database using sqlalchemy
 app = Flask(__name__)
 
 @app.route('/', methods=['GET', 'POST'])
