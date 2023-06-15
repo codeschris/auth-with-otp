@@ -23,10 +23,18 @@ All passwords are stored within a Postgres Database and the backend operations a
 | random     | Generating a random sample of alphabets from list of alphabets |
 | os         | Accessing critical information from system user variables      |
 
+### Important note:
+Remember to set user variables in the terminal for ease of identification of variables declared during execution:
+
+```shell
+export DB_NAME = 'database_name'
+export DB_PASSWORD = 'password'
+export DB_USERNAME = 'database_username'
+```
+
 ### To do:
 - [x] Add OTP feature to application
 - [x] Connecting database to application
-- [ ] Hashing passwords
 
 _The application/webpage was created for operations and testing within localhost so it is free to fork/clone this repository and modify. Thank you!_
 
