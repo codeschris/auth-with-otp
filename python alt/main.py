@@ -1,10 +1,9 @@
-from flask import Flask, render_template, redirect, url_for, request
+from flask import Flask, render_template, request
 import psycopg2
 from psycopg2 import sql
 import os
 import string
 import random
-from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
 
@@ -29,7 +28,7 @@ def index():
                 cursor.execute(query, (username, password))
                 result = cursor.fetchone()[0]
 
-                if result is not None:
+                if result == 1:
                     return render_template('landing.html')
                 else:
                     #generating lowercase and uppercase letters
