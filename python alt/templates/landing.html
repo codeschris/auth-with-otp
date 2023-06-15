@@ -1,0 +1,8 @@
+{% extends 'base.html' %}
+{% block title %}This is the landing page{% endblock %}
+{% block body %}
+<div class="main-frame" style="padding: 10px; margin: 0; text-align: center;">
+    <h3>Welcome, you are logged in successfully.</h3>
+    <p>Click <span><a href="{{url_for('index')}}">here</a></span> to be redirected to the Login page!</p>
+</div>
+{% endblock %}
