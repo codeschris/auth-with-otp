@@ -13,7 +13,7 @@ def index():
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
-        otp = request.form.get('otp')
+        otp_code = request.form.get('otp_code')
 
         if username == '' or password == '':
             error = "Missing input. Input missing field(s)!"
@@ -39,7 +39,8 @@ def index():
                     list = random.sample(all, 5)    #randomizing letter and placing in a list
                     res = ''.join(list)  #joining letters together to form a string
 
-                    error = 'OTP code is: {}'.format(res)    #passing OTP code incase of invalid details or forgotten password
+                    #passing OTP code incase of invalid details or forgotten password
+                    error = 'OTP code is: {}'.format(res)
 
             except (psycopg2.Error, psycopg2.DatabaseError) as e:
                 error = "Database error: {}".format(str(e))
@@ -47,7 +48,11 @@ def index():
             finally:
                 cursor.close()
                 conn.close()
-
+        #Error here
+        if otp_code == res and username != None:
+            return render_template('landing.html')
+        #Error here
+        
     return render_template("index.html", error=error)
 
 if __name__ == '__main__':
