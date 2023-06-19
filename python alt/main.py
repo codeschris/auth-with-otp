@@ -13,8 +13,9 @@ def index():
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
+        otp = request.form.get('otp')
 
-        if username is None or password is None:
+        if username == '' or password == '':
             error = "Missing input. Input missing field(s)!"
         else:
             conn = psycopg2.connect(host='localhost',
@@ -34,16 +35,15 @@ def index():
                     #generating lowercase and uppercase letters
                     bets_low = string.ascii_lowercase
                     bets_upper = string.ascii_uppercase
-            
                     all = bets_low + bets_upper #joining lowercase and uppercase letters together
-
                     list = random.sample(all, 5)    #randomizing letter and placing in a list
-                    result = ''.join(list)  #joining letters together to form a string
+                    res = ''.join(list)  #joining letters together to form a string
 
-                    error = 'OTP code is: {}'.format(result)    #passing OTP code incase of invalid details or forgotten password
+                    error = 'OTP code is: {}'.format(res)    #passing OTP code incase of invalid details or forgotten password
 
             except (psycopg2.Error, psycopg2.DatabaseError) as e:
                 error = "Database error: {}".format(str(e))
+                
             finally:
                 cursor.close()
                 conn.close()
