@@ -4,8 +4,36 @@ from psycopg2 import sql
 import os
 import string
 import random
+import bcrypt
 
 app = Flask(__name__)
+
+def hash_password(password):
+    salt = bcrypt.gensalt()
+    hashed_password = bcrypt.hashpw(password.encode('utf-8'), salt)
+    return hashed_password.decode('utf-8')
+
+def update_passwords():
+    conn = psycopg2.connect(host='localhost',
+                            database = 'proj_db',
+                            user = os.environ['DB_USERNAME'],
+                            password = os.environ['DB_PASSWORD'])
+    try:
+        cursor = conn.cursor()
+        cursor.execute("SELECT name, password FROM users")
+        rows = cursor.fetchall()
+
+        for row in rows:
+            username, plain_password = row
+            hashed_password = hash_password(plain_password)
+            cursor.execute("UPDATE users SET password = %s WHERE name = %s", (hashed_password, username))
+            conn.commit()
+    except (psycopg2.Error, psycopg2.DatabaseError) as e:
+        print("Database error: {}".format(str(e)))
+
+    finally:
+        cursor.close()
+        conn.close()
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
@@ -13,13 +41,12 @@ def index():
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
-        otp_code = request.form.get('otp_code')
 
         if username == '' or password == '':
             error = "Missing input. Input missing field(s)!"
         else:
             conn = psycopg2.connect(host='localhost',
-                            database=os.environ['DB_NAME'],
+                            database='proj_db',
                             user=os.environ['DB_USERNAME'],
                             password=os.environ['DB_PASSWORD'])
             
@@ -48,12 +75,9 @@ def index():
             finally:
                 cursor.close()
                 conn.close()
-        #Error here
-        if otp_code == res and username != None:
-            return render_template('landing.html')
-        #Error here
         
     return render_template("index.html", error=error)
 
 if __name__ == '__main__':
+    update_passwords()
     app.run(debug=True)
