@@ -1,42 +1,22 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect, session, url_for
 import psycopg2
-from psycopg2 import sql
 import os
-import string
-import random
 import bcrypt
 
 app = Flask(__name__)
+app.secret_key = b'schoolproject'
 
+# Function to hash the password
 def hash_password(password):
     salt = bcrypt.gensalt()
     hashed_password = bcrypt.hashpw(password.encode('utf-8'), salt)
     return hashed_password.decode('utf-8')
 
-def update_passwords():
-    conn = psycopg2.connect(host='localhost',
-                            database = 'proj_db',
-                            user = os.environ['DB_USERNAME'],
-                            password = os.environ['DB_PASSWORD'])
-    try:
-        cursor = conn.cursor()
-        cursor.execute("SELECT name, password FROM users")
-        rows = cursor.fetchall()
-
-        for row in rows:
-            username, plain_password = row
-            hashed_password = hash_password(plain_password)
-            cursor.execute("UPDATE users SET password = %s WHERE name = %s", (hashed_password, username))
-            conn.commit()
-    except (psycopg2.Error, psycopg2.DatabaseError) as e:
-        print("Database error: {}".format(str(e)))
-
-    finally:
-        cursor.close()
-        conn.close()
-
 @app.route('/', methods=['GET', 'POST'])
 def index():
+    if 'username' in session:
+        return redirect(url_for('landing'))
+    
     error = None
     if request.method == 'POST':
         username = request.form.get('username')
@@ -52,22 +32,17 @@ def index():
             
             try:
                 cursor = conn.cursor()
-                query = sql.SQL("SELECT COUNT(*) FROM users WHERE name = %s AND password = %s")
-                cursor.execute(query, (username, password))
-                result = cursor.fetchone()[0]
+                query = "SELECT name, password FROM users WHERE name = %s"
+                cursor.execute(query, (username, ))
+                user_data = cursor.fetchone()
 
-                if result == 1:
-                    return render_template('landing.html')
+                if user_data is not None:
+                    stored_password = user_data[1]
+                    if bcrypt.checkpw(password.encode('utf-8'), stored_password.encode('utf-8')):
+                        session['username'] = user_data[0]
+                        return redirect(url_for('landing'))
                 else:
-                    #generating lowercase and uppercase letters
-                    bets_low = string.ascii_lowercase
-                    bets_upper = string.ascii_uppercase
-                    all = bets_low + bets_upper #joining lowercase and uppercase letters together
-                    list = random.sample(all, 5)    #randomizing letter and placing in a list
-                    res = ''.join(list)  #joining letters together to form a string
-
-                    #passing OTP code incase of invalid details or forgotten password
-                    error = 'OTP code is: {}'.format(res)
+                    error = "Invalid username or password."
 
             except (psycopg2.Error, psycopg2.DatabaseError) as e:
                 error = "Database error: {}".format(str(e))
@@ -78,6 +53,12 @@ def index():
         
     return render_template("index.html", error=error)
 
+@app.route('/landing')
+def landing():
+    if 'username' in session:
+        return render_template('landing.html', username=session['username'])
+    else:
+        return redirect(url_for('index'))
+
 if __name__ == '__main__':
-    update_passwords()
     app.run(debug=True)

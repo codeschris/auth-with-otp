@@ -2,7 +2,7 @@
 {% block title %} This is a login page {% endblock %}
 
 {% block body %}
-<form method="post">
+<form action="/" method="post">
     <!--value="{{request.form.username }}-->
     <h3 style="text-align: center;">Login page with OTP authentication</h3>
     <label for="username">Username: </label>
@@ -10,13 +10,16 @@
     <br><br>
     <label for="password">Password: </label>
     <input type="password" name="password">
+
     <br><br>
     <hr>
+
     {% if error %}
-    <p class="error"><strong>Error:</strong> {{error}}</p>
-    <label for="otp_code">Enter your OTP code:</label>
-    <input type="text" name="otp_code">
+        <p class="error"><strong>Error:</strong> {{error}}</p>
+        <label for="otp_code">Enter your OTP code:</label>
+        <input type="text" name="otp_code">
     {% endif %}
+    
     <br><br>
     <input class="btn btn-default" type="submit" value="Login">
 </form>
