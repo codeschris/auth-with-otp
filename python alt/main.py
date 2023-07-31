@@ -1,22 +1,14 @@
-from flask import Flask, render_template, request, redirect, session, url_for
+from flask import Flask, render_template, request
 import psycopg2
 import os
-import bcrypt
+import string
+import random
+from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
-app.secret_key = b'schoolproject'
-
-# Function to hash the password
-def hash_password(password):
-    salt = bcrypt.gensalt()
-    hashed_password = bcrypt.hashpw(password.encode('utf-8'), salt)
-    return hashed_password.decode('utf-8')
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
-    if 'username' in session:
-        return redirect(url_for('landing'))
-    
     error = None
     if request.method == 'POST':
         username = request.form.get('username')
@@ -33,14 +25,21 @@ def index():
             try:
                 cursor = conn.cursor()
                 query = "SELECT name, password FROM users WHERE name = %s"
-                cursor.execute(query, (username, ))
+                cursor.execute(query, (username,))
                 user_data = cursor.fetchone()
 
                 if user_data is not None:
                     stored_password = user_data[1]
-                    if bcrypt.checkpw(password.encode('utf-8'), stored_password.encode('utf-8')):
-                        session['username'] = user_data[0]
-                        return redirect(url_for('landing'))
+                    if check_password_hash(stored_password, password):
+                        return render_template('landing.html')
+                    else:
+                        # Generating lowercase and uppercase letters
+                        bets_low = string.ascii_lowercase
+                        bets_upper = string.ascii_uppercase
+                        all_chars = bets_low + bets_upper
+                        random_chars = random.sample(all_chars, 5)
+                        otp_code = ''.join(random_chars)
+                        error = 'OTP code is: {}'.format(otp_code)
                 else:
                     error = "Invalid username or password."
 
@@ -52,13 +51,6 @@ def index():
                 conn.close()
         
     return render_template("index.html", error=error)
-
-@app.route('/landing')
-def landing():
-    if 'username' in session:
-        return render_template('landing.html', username=session['username'])
-    else:
-        return redirect(url_for('index'))
 
 if __name__ == '__main__':
     app.run(debug=True)
