@@ -1,5 +1,5 @@
 import random
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect, url_for
 import psycopg2
 from psycopg2 import sql
 import os
@@ -7,6 +7,7 @@ import string
 
 app = Flask(__name__)
 
+#One time password generator
 def generate_random_otp():
     bets_low = string.ascii_lowercase
     bets_upper = string.ascii_uppercase
@@ -14,10 +15,16 @@ def generate_random_otp():
     otp_code = ''.join(random.sample(all_letters, 5))
     return otp_code
 
+#redirection route
+@app.route('/index.html')
+def redirection():
+    return redirect(url_for('index'))
+
+#main route
 @app.route('/', methods=['GET', 'POST'])
 def index():
     error = None
-    otp_generated = None
+
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
