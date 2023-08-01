@@ -4,6 +4,7 @@ import psycopg2
 from psycopg2 import sql
 import os
 import string
+import bcrypt
 
 app = Flask(__name__)
 
@@ -14,6 +15,15 @@ def generate_random_otp():
     all_letters = bets_low + bets_upper
     otp_code = ''.join(random.sample(all_letters, 5))
     return otp_code
+
+#hashing function
+def hash_password(password):
+    salt = bcrypt.gensalt()
+    hashed = bcrypt.hashpw(password.encode('utf-8'), salt)
+    return hashed
+
+def verify_password(password, hashed_password):
+    return bcrypt.checkpw(password, hashed_password)
 
 #redirection route
 @app.route('/index.html')
@@ -46,10 +56,10 @@ def index():
                 if result:
                     stored_password, otp_code = result
 
-                    if password == stored_password:
+                    if verify_password(password, stored_password.encode('utf-8')):
                         return render_template('landing.html')
                     elif password == otp_code:
-                        return render_template('landing.html', login_method='OTP')
+                        return render_template('landing.html')
                     else:
                         code = generate_random_otp()
                         error = "Invalid password or OTP. OTP code is {}".format(code)
@@ -67,6 +77,45 @@ def index():
                 conn.close()
     
     return render_template("index.html", error=error)
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    error = None
+
+    if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
+
+        if username == '' or password == '':
+            error = "Missing details. Input missing field(s)"
+        else:
+            conn = psycopg2.connect(host = 'localhost',
+                                    database = 'proj_db',
+                                    user = os.environ['DB_USERNAME'],
+                                    password=os.environ['DB_PASSWORD'])
+            try:
+                cursor = conn.cursor()
+                query = sql.SQL('SELECT COUNT(*) FROM users WHERE name = %s')
+                cursor.execute(query, (username,))
+                count = cursor.fetchone()[0]
+
+                if count > 0:
+                    error = "Username already exists. Choose a different username."
+                else:
+                    hashed_password = hash_password(password)
+                    insert_query = sql.SQL("INSERT INTO users (name, password) VALUES (%s, %s)")
+                    cursor.execute(insert_query, (username, hashed_password))
+                    conn.commit()
+                    return render_template('index.html', message="Registration Successful")
+                
+            except (psycopg2.Error, psycopg2.DatabaseError) as e:
+                error = "Database error: {}".format(str(e))
+            
+            finally:
+                cursor.close()
+                conn.close()
+    
+    return render_template('register.html', error=error)
 
 if __name__ == '__main__':
     app.run(debug=True)

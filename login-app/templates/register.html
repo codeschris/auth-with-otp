@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% block title %}Register for an account{% endblock %}
+{% block body %}
+<form method="post">
+    <h3 class="text">Register for a new account</h3>
+    <label for="Username">Enter your username: </label><br>
+    <input type="text" name="username">
+    <br><br>
+    <label for="Password">Enter your new password: </label>
+    <input type="password" name="password">
+    <br><br>
+    <input type="submit" value="Register">
+
+    <br><br><hr>
+    {% if error %}
+        <p class="error"><strong>Error:</strong> {{error}}</p>
+    {% endif %}
+</form>
+{% endblock %}
