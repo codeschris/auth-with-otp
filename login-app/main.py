@@ -30,7 +30,7 @@ def redirection():
     return redirect(url_for('index'))
 
 #main route
-@app.route('/', methods=['GET', 'POST'])
+@app.route('/login', methods=['GET', 'POST'])
 def index():
     error = None
 
