@@ -4,9 +4,10 @@ import psycopg2
 from psycopg2 import sql
 import os
 import string
-import bcrypt
+from flask_bcrypt import Bcrypt
 
 app = Flask(__name__)
+bcrypt = Bcrypt(app)
 
 #One time password generator
 def generate_random_otp():
@@ -18,12 +19,10 @@ def generate_random_otp():
 
 #hashing function
 def hash_password(password):
-    salt = bcrypt.gensalt()
-    hashed = bcrypt.hashpw(password.encode('utf-8'), salt)
-    return hashed
+    return bcrypt.generate_password_hash(password).decode('utf-8')
 
 def verify_password(password, hashed_password):
-    return bcrypt.checkpw(password, hashed_password)
+    return bcrypt.check_password_hash(hashed_password, password)
 
 #redirection route
 @app.route('/index.html')
