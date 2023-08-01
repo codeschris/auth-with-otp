@@ -7,4 +7,4 @@ Changes to be made and fixes
 - [x] Add OTP feature to application
 - [x] Enabling OTP feature as an alternative for logging in
 - [x] Connecting database to application
-- [ ] Hashing passwords (requires altering/modifying the code to allow for hashing)
+- [x] Hashing passwords (requires altering/modifying the code to allow for hashing)
