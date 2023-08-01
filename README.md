@@ -37,4 +37,4 @@ export DB_USERNAME = 'database_username'
 - [x] Add OTP feature to application
 - [x] Enable OTP functionality
 - [x] Connecting database to application
-- [ ] Hashing passwords
+- [x] Hashing passwords
