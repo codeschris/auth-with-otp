@@ -38,5 +38,3 @@ export DB_USERNAME = 'database_username'
 - [x] Enable OTP functionality
 - [x] Connecting database to application
 - [ ] Hashing passwords
-
-_The application/webpage was created for operations and testing within localhost so it is free to fork/clone this repository and modify. Thank you!_
