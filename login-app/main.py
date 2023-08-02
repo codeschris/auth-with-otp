@@ -38,7 +38,7 @@ def index():
         username = request.form.get('username')
         password = request.form.get('password')
 
-        if username == '':
+        if username == '' or password == '':
             error = "Missing input. Input missing field(s)!"
         else:
             conn = psycopg2.connect(host='localhost',
@@ -84,6 +84,7 @@ def register():
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
+        email = request.form.get('email')
 
         if username == '' or password == '':
             error = "Missing details. Input missing field(s)"
@@ -102,8 +103,8 @@ def register():
                     error = "Username already exists. Choose a different username."
                 else:
                     hashed_password = hash_password(password)
-                    insert_query = sql.SQL("INSERT INTO users (name, password) VALUES (%s, %s)")
-                    cursor.execute(insert_query, (username, hashed_password))
+                    insert_query = sql.SQL("INSERT INTO users (name, password, email) VALUES (%s, %s, %s)")
+                    cursor.execute(insert_query, (username, hashed_password, email))
                     conn.commit()
                     return render_template('index.html', message="Registration Successful")
                 
