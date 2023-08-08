@@ -100,8 +100,9 @@ def register():
                     error = "Username already exists. Choose a different username."
                 else:
                     hashed_password = hash_password(password)
-                    insert_query = sql.SQL("INSERT INTO users (name, password, email) VALUES (%s, %s, %s)")
-                    cursor.execute(insert_query, (username, hashed_password, email))
+                    code = generate_random_otp()
+                    insert_query = sql.SQL("INSERT INTO users (name, password, email, otp_code) VALUES (%s, %s, %s, %s)")
+                    cursor.execute(insert_query, (username, hashed_password, email, code))
                     conn.commit()
                     return render_template('index.html', message="Registration Successful")
                 
