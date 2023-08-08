@@ -2,8 +2,7 @@ import random
 from flask import Flask, render_template, request, redirect, url_for
 import psycopg2
 from psycopg2 import sql
-import os
-import string
+import os; import string
 from flask_bcrypt import Bcrypt
 
 app = Flask(__name__)
@@ -11,9 +10,7 @@ bcrypt = Bcrypt(app)
 
 #One time password generator
 def generate_random_otp():
-    bets_low = string.ascii_lowercase
-    bets_upper = string.ascii_uppercase
-    all_letters = bets_low + bets_upper
+    all_letters = string.ascii_letters
     otp_code = ''.join(random.sample(all_letters, 5))
     return otp_code
 
