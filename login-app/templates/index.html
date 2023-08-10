@@ -10,12 +10,14 @@
     <br><br>
     <label for="password">Password: </label>
     <input type="password" name="password">
-
+    <br><br>
+    <label for="password">OTP Code: </label>
+    <input type="text" name="otp">
     <br><br>
     <hr>
 
     {% if error %}
-        <p class="error"><strong>Error:</strong> {{error}}</p>
+        <p class="error"><strong>Message:</strong> {{error}}</p>
     {% endif %}
     <input class="btn btn-default" type="submit" value="Login">
     <p class="text">New user? <a href="/register">Register here</a></p>

@@ -34,6 +34,7 @@ def index():
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
+        otp = request.form.get('otp')
 
         if username == '' or password == '':
             error = "Missing input. Input missing field(s)!"
@@ -52,7 +53,7 @@ def index():
                 if result:
                     stored_password, otp_code = result
 
-                    if verify_password(password, stored_password.encode('utf-8')):
+                    if verify_password(password, stored_password.encode('utf-8')) and otp == otp_code:
                         return render_template('landing.html')
                     elif password == otp_code:
                         return render_template('landing.html')
@@ -104,7 +105,8 @@ def register():
                     insert_query = sql.SQL("INSERT INTO users (name, password, email, otp_code) VALUES (%s, %s, %s, %s)")
                     cursor.execute(insert_query, (username, hashed_password, email, code))
                     conn.commit()
-                    return render_template('index.html', message="Registration Successful")
+                    error = "Your OTP code is: {}".format(code)
+                    # return render_template('index.html', message="Registration Successful")
                 
             except (psycopg2.Error, psycopg2.DatabaseError) as e:
                 error = "Database error: {}".format(str(e))
