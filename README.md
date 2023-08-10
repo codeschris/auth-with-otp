@@ -1,6 +1,6 @@
 # Login Auth Site with OTP
 
-- This is a project that contains a login auth page featuring functional OTP codes
+This is a project that contains a login auth page featuring functional OTP codes
 
 ## Requirements
 
